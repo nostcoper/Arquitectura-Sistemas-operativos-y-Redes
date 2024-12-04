@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - parcial-network
+
+
   eureka-server:
     build: ./MicroServicioEureka
     container_name: eureka-server
@@ -50,6 +63,8 @@ services:
       - "5432:5432"
     networks:
       - parcial-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
@@ -76,16 +91,18 @@ services:
     networks:
       - parcial-network
     depends_on:
+      - nginx
       - eureka-server
       - microservicio-usuarios
       - microservicio-cursos
       - gateway
 
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "3100:3100"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
@@ -106,4 +123,3 @@ volumes:
     driver: local
   grafana_data:
     driver: local
-
