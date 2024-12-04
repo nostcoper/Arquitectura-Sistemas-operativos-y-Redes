@@ -13,7 +13,6 @@ services:
     networks:
       - parcial-network
 
-
   eureka-server:
     build: ./MicroServicioEureka
     container_name: eureka-server
@@ -25,6 +24,8 @@ services:
   microservicio-usuarios:
     build: ./MicroServicioUsuarios
     container_name: microservicio-usuarios
+    ports:
+      - "8082:8082"
     depends_on:
       - eureka-server
       - postgres
@@ -34,6 +35,8 @@ services:
   microservicio-cursos:
     build: ./MicroServicioCursos
     container_name: microservicio-cursos
+    ports:
+      - "8081:8081"
     depends_on:
       - eureka-server
       - postgres
@@ -97,12 +100,23 @@ services:
       - microservicio-cursos
       - gateway
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    ports:
+      - "9113:9113" # Puerto para Prometheus
+    depends_on:
+      - nginx
+    networks:
+      - parcial-network
+    command:
+      - "-nginx.scrape-uri=http://nginx/stub_status"
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - "3100:3100"
+      - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
