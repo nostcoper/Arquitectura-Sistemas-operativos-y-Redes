@@ -14,31 +14,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AlumnoService extends CommonService<Alumno> {
 
-    private final MeterRegistry meterRegistry;
+    private final AlumnoRepository dao;
 
     @Autowired
-    public AlumnoService(CrudRepository<Alumno, Long> dao, MeterRegistry meterRegistry) {
-        super(dao);
-        this.meterRegistry = meterRegistry;
+    public AlumnoService(CrudRepository<Alumno, Long> crudRepository, MeterRegistry meterRegistry, AlumnoRepository alumnoRepository) {
+        super(crudRepository);
+        this.dao = alumnoRepository;
+
+        // Registro de la métrica dinámica al inicializar el servicio
+        meterRegistry.gauge("alumnos.total", this, AlumnoService::countAlumnos);
     }
-
-    @Autowired
-    private AlumnoRepository dao;
 
     @Override
     @Transactional
     public Alumno save(Alumno alumno) {
-        Alumno savedAlumno = dao.save(alumno);
-        // Incrementar el contador de alumnos guardados
-        meterRegistry.counter("alumno.save.count").increment();
-        return savedAlumno;
+        return dao.save(alumno); // Las métricas se actualizan automáticamente
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        dao.deleteById(id);
-        // Incrementar el contador de alumnos eliminados
-        meterRegistry.counter("alumno.delete.count").increment();
+        dao.deleteById(id); // Las métricas se actualizan automáticamente
+    }
+
+    @Transactional(readOnly = true)
+    public long countAlumnos() {
+        return dao.count();
     }
 }

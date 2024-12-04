@@ -17,24 +17,27 @@ public class CursoService extends CommonService<Curso> {
 
     private final MeterRegistry meterRegistry;
 
-    public CursoService(CrudRepository<Curso, Long> dao, MeterRegistry meterRegistry) {
+    @Autowired
+    public CursoService(CrudRepository<Curso, Long> dao, MeterRegistry meterRegistry, CursoRepository cursoRepository) {
         super(dao);
+        this.dao = cursoRepository;
         this.meterRegistry = meterRegistry;
+
+        // Registro de la métrica dinámica al inicializar el servicio
+        meterRegistry.gauge("cursos.total", this, CursoService::countCursos);
     }
+
 
     @Override
     @Transactional
     public Curso save(Curso curso) {
-        Curso savedCurso = dao.save(curso);
-        updateMetrics();
-        return savedCurso;
+        return dao.save(curso); // Las métricas se actualizarán automáticamente por la referencia dinámica
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        dao.deleteById(id);
-        updateMetrics();
+        dao.deleteById(id); // Las métricas se actualizarán automáticamente por la referencia dinámica
     }
 
     @Transactional(readOnly = true)
