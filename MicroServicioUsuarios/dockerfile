@@ -1,0 +1,21 @@
+# Usa una imagen base de JDK
+FROM openjdk:22-jdk-slim
+
+# Crea un usuario no root
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Copia el archivo JAR en la imagen
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} Microservicio-Usuarios-1.0.0.jar
+
+# Cambia el propietario del archivo JAR
+RUN chown appuser:appgroup Microservicio-Usuarios-1.0.0.jar
+
+# Cambia al usuario no root
+USER appuser
+
+# Establece el punto de entrada para la aplicación
+ENTRYPOINT ["java", "-jar", "/app/Microservicio-Usuarios-1.0.0.jar"]

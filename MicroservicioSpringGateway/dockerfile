@@ -1,0 +1,24 @@
+# Usa una imagen base de JDK
+FROM openjdk:22-jdk-slim
+
+# Crea un usuario no root
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Instalar curl y limpiar el caché de apt-get
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copia el archivo JAR en la imagen
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} SpringGateway-1.0.0.jar
+
+# Cambia el propietario del archivo JAR
+RUN chown appuser:appgroup SpringGateway-1.0.0.jar
+
+# Cambia al usuario no root
+USER appuser
+
+# Establece el punto de entrada para la aplicación con espera de Eureka
+ENTRYPOINT ["/bin/sh", "-c", "until curl -s http://eureka-server:8761/eureka/; do echo 'Waiting for Eureka to start...'; sleep 5; done; java -jar /app/SpringGateway-1.0.0.jar"]
