@@ -21,22 +21,48 @@ services:
     networks:
       - parcial-network
 
-  microservicio-usuarios:
+  # Microservicio Usuarios 1
+  microservicio-usuarios-1:
     build: ./MicroServicioUsuarios
-    container_name: microservicio-usuarios
+    container_name: microservicio-usuarios-1
     ports:
-      - "8082:8082"
+      - "8082:8082" 
     depends_on:
       - eureka-server
       - postgres
     networks:
       - parcial-network
 
-  microservicio-cursos:
-    build: ./MicroServicioCursos
-    container_name: microservicio-cursos
+  # Microservicio Usuarios 2
+  microservicio-usuarios-2:
+    build: ./MicroServicioUsuarios
+    container_name: microservicio-usuarios-2
     ports:
-      - "8081:8081"
+      - "8084:8082" 
+    depends_on:
+      - eureka-server
+      - postgres
+    networks:
+      - parcial-network
+
+  # Microservicio Cursos 1
+  microservicio-cursos-1:
+    build: ./MicroServicioCursos
+    container_name: microservicio-cursos-1
+    ports:
+      - "8081:8081" 
+    depends_on:
+      - eureka-server
+      - postgres
+    networks:
+      - parcial-network
+
+  # Microservicio Cursos 2
+  microservicio-cursos-2:
+    build: ./MicroServicioCursos
+    container_name: microservicio-cursos-2
+    ports:
+      - "8083:8081" 
     depends_on:
       - eureka-server
       - postgres
@@ -49,8 +75,10 @@ services:
     ports:
       - "8090:8090"
     depends_on:
-      - microservicio-usuarios
-      - microservicio-cursos
+      - microservicio-usuarios-1
+      - microservicio-usuarios-2
+      - microservicio-cursos-1
+      - microservicio-cursos-2
       - eureka-server
     networks:
       - parcial-network
@@ -96,15 +124,17 @@ services:
     depends_on:
       - nginx
       - eureka-server
-      - microservicio-usuarios
-      - microservicio-cursos
+      - microservicio-usuarios-1
+      - microservicio-usuarios-2
+      - microservicio-cursos-1
+      - microservicio-cursos-2
       - gateway
 
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter:latest
     container_name: nginx-exporter
     ports:
-      - "9113:9113" # Puerto para Prometheus
+      - "9113:9113" 
     depends_on:
       - nginx
     networks:

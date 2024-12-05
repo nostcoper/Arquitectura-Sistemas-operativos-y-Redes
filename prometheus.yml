@@ -12,15 +12,25 @@ scrape_configs:
     static_configs:
       - targets: ['eureka-server:8761']
 
-  - job_name: 'microservicio-usuarios'
+  - job_name: 'microservicio-usuarios-1'
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ['microservicio-usuarios:8082']
+      - targets: ['microservicio-usuarios-1:8082']
 
-  - job_name: 'microservicio-cursos'
+  - job_name: 'microservicio-usuarios-2'
     metrics_path: /actuator/prometheus
     static_configs:
-      - targets: ['microservicio-cursos:8081']
+      - targets: ['microservicio-usuarios-2:8082']
+
+  - job_name: 'microservicio-cursos-1'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['microservicio-cursos-1:8081']
+
+  - job_name: 'microservicio-cursos-2'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['microservicio-cursos-2:8081']
 
   - job_name: 'gateway'
     metrics_path: /actuator/prometheus
